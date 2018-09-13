@@ -12,3 +12,4 @@ rel/example_project
 emq_plugin_template.d
 /.idea
 *.iml
+/_build

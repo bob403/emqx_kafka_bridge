@@ -75,7 +75,7 @@ on_client_disconnected(Reason, _Client, _Env) ->
     ok.
 
 %% transform message and return
-on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
+on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
@@ -115,13 +115,13 @@ format_event(Action, Client) ->
     {ok, Event}.
 
 format_payload(Message) ->
-    {ClientId, Username} = format_from(Message#mqtt_message.from),
+    {ClientId, Username} = format_from(Message#message.from),
     Payload = [{action, message_publish},
                   {device_id, ClientId},
                   {username, Username},
-                  {topic, Message#mqtt_message.topic},
-                  {payload, Message#mqtt_message.payload},
-                  {ts, emqttd_time:now_secs(Message#mqtt_message.timestamp)}],
+                  {topic, Message#message.topic},
+                  {payload, Message#message.payload},
+                  {ts, emqttd_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
 format_from({ClientId, Username}) ->

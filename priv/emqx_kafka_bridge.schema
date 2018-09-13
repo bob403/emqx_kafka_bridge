@@ -1,5 +1,4 @@
 %%-*- mode: erlang -*-
-%% emq_auth_pgsl config mapping
 
 {mapping, "kafka.host", "emqx_kafka_bridge.broker", [
   {default, "192.168.1.44"},

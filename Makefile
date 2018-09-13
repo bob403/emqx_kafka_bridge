@@ -6,7 +6,7 @@ DEPS = ekaf
 dep_ekaf = git https://github.com/helpshift/ekaf master
 
 
-BUILD_DEPS = emqttd cuttlefish
+BUILD_DEPS = emqx cuttlefish
 dep_emqx = git https://github.com/emqx/emqx emqx30
 dep_cuttlefish = git https://github.com/emqx/cuttlefish emqx30
 
