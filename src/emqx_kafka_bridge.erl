@@ -58,8 +58,8 @@ on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, Con
     %     {deviceId, ClientId}
     % ])),
     % produce_kafka_payload(<<"event">>, Client),
-    Payload = [{device_id, ClientId}, {username, Username}],
-    {ok, Event} = format_event(connected, Payload),
+    Payload = [{action,"connected"},{device_id, ClientId}, {username, Username}],
+    {ok, Event} = format_event(Payload),
     produce_kafka_payload(Event),
     ok.
 
@@ -71,8 +71,8 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, Reason, _
     %     {deviceId, ClientId}
     % ]),
     % produce_kafka_payload(<<"event">>, _Client),
-    Payload = [{device_id, ClientId}, {username, Username}],
-    {ok, Event} = format_event(disconnected, Payload),
+    Payload = [{action,"disconnected"}, {device_id, ClientId}, {username, Username}],
+    {ok, Event} = format_event(Payload),
     produce_kafka_payload(Event),	
     ok.
 
@@ -110,8 +110,8 @@ ekaf_init(_Env) ->
     % {ok, _} = application:ensure_all_started(ranch),    
     {ok, _} = application:ensure_all_started(ekaf).
 
-format_event(Action, Client) ->
-    Event = [{action, Action}, Client],
+format_event(Playload) ->
+    Event = Playload,
     {ok, Event}.
 
 format_payload(Message) ->
