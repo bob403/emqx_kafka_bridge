@@ -110,9 +110,8 @@ ekaf_init(_Env) ->
     % {ok, _} = application:ensure_all_started(ranch),    
     {ok, _} = application:ensure_all_started(ekaf).
 
-format_event(Action, ClientId) ->
-    Event = [{action, Action},
-                {device_id, ClientId}],
+format_event(Action, Client) ->
+    Event = [{action, Action}, Client],
     {ok, Event}.
 
 format_payload(Message) ->
