@@ -1,0 +1,36 @@
+%%-*- mode: erlang -*-
+%% emq_auth_pgsl config mapping
+
+{mapping, "kafka.host", "emqx_kafka_bridge.broker", [
+  {default, "192.168.1.44"},
+  {datatype, string}
+]}.
+
+{mapping, "kafka.port", "emqx_kafka_bridge.broker", [
+  {default, "9092"},
+  {datatype, string}
+]}.
+
+{mapping, "kafka.partitionstrategy", "emqx_kafka_bridge.broker", [
+  {default, "strict_round_robin"},
+  {datatype, string}
+]}.
+
+{mapping, "kafka.partitionworkers", "emqx_kafka_bridge.broker", [
+  {default, 8},
+  {datatype, integer}
+]}.
+
+{mapping, "kafka.payloadtopic", "emqx_kafka_bridge.broker", [
+  {default, "Processing"},
+  {datatype, string}
+]}.
+
+{translation, "emqx_kafka_bridge.broker", fun(Conf) ->
+  KafkaHost = cuttlefish:conf_get("kafka.host", Conf),
+  KafkaPort = cuttlefish:conf_get("kafka.port", Conf),
+  KafkaPartitionStrategy = cuttlefish:conf_get("kafka.partitionstrategy", Conf),
+  KafkaPartitionWorkers = cuttlefish:conf_get("kafka.partitionworkers", Conf),
+  KafkaPayloadTopic = cuttlefish:conf_get("kafka.payloadtopic", Conf),
+  [{host, KafkaHost}, {port, KafkaPort}, {partitionstrategy, KafkaPartitionStrategy}, {partitionworkers, KafkaPartitionWorkers}, {payloadtopic, KafkaPayloadTopic}]
+  end}.

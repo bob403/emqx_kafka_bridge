@@ -1,0 +1,2 @@
+include ../../erlang.mk
+
