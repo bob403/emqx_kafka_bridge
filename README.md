@@ -1,13 +1,13 @@
 
 # emqx_kafka_bridge
 
-This is a plugin for the EMQ broker that sends all messages received by the broker to kafka.
+This is a plugin for the EMQX broker that sends all messages received by the broker to kafka.
 
-## Build the EMQ broker
+## Build the EMQX broker
 
 1. Clone emqx-relx project
 
-   We need to clone the EMQ-x project [GITHUB](https://github.com/emqx/emqx-rel)
+   We need to clone the EMQX project [GITHUB](https://github.com/emqx/emqx-rel)
 
 ```shell
   git clone https://github.com/emqx/emqx-rel.git
@@ -21,9 +21,10 @@ This is a plugin for the EMQ broker that sends all messages received by the brok
 
    2. search for
      ```text
+     # Add this dependency before including erlang.mk
+     all:: OTP_21_OR_NEWER
+  
      # COVER = true
-     #NO_AUTOPATCH = emq_elixir_plugin
-     include erlang.mk
      ```
      add the following line before the above lines
      >dep_emqx_kafka_bridge = git https://github.com/fanbaobo/emqx_kafka_bridge.git master
@@ -72,7 +73,7 @@ kafka.payloadtopic = Processing
 
 Start the EMQ broker and load the plugin 
 -----------------
-1) cd emqx-relx/_rel/emqttd
+1) cd emqx-relx/_rel/emqx
 2) ./bin/emqx start
 3) ./bin/emqx_ctl plugins load emqx_kafka_bridge
 
@@ -85,7 +86,7 @@ The following should be received by your kafka consumer :
   {"topic":"yourtopic", "message":[yourmessage]}
 This is the format in which kafka will receive the MQTT messages
 
-If Kafka consumer shows no messages even after publishing to EMQTT - ACL makes the plugin fail, so please remove all the ACL related code to ensure it runs properly. We will soon push the updated (Working) code to the repository. 
+If Kafka consumer shows no messages even after publishing to EMQX - ACL makes the plugin fail, so please remove all the ACL related code to ensure it runs properly. We will soon push the updated (Working) code to the repository. 
 
 ## License
 
