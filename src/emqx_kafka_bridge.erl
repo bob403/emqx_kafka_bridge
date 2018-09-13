@@ -93,7 +93,7 @@ on_message_acked(#{client_id := ClientId}, Message, _Env) ->
     {ok, Message}.
 
 ekaf_init(_Env) ->
-    {ok, BrokerValues} = application:get_env(emq_kafka_bridge, broker),
+    {ok, BrokerValues} = application:get_env(emqx_kafka_bridge, broker),
     KafkaHost = proplists:get_value(host, BrokerValues),
     KafkaPort = proplists:get_value(port, BrokerValues),
     KafkaPartitionStrategy= proplists:get_value(partitionstrategy, BrokerValues),
