@@ -58,7 +58,8 @@ on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, Con
     %     {deviceId, ClientId}
     % ])),
     % produce_kafka_payload(<<"event">>, Client),
-    Payload = [{action,"connected"},{device_id, ClientId}, {username, Username}],
+    Action = <<"connected">>,
+    Payload = [{action, Action},{device_id, ClientId}, {username, Username}],
     {ok, Event} = format_event(Payload),
     produce_kafka_payload(Event),
     ok.
@@ -71,7 +72,9 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, Reason, _
     %     {deviceId, ClientId}
     % ]),
     % produce_kafka_payload(<<"event">>, _Client),
-    Payload = [{action,"disconnected"}, {device_id, ClientId}, {username, Username}],
+
+    Action = <<"disconnected">>,
+    Payload = [{action, Action}, {device_id, ClientId}, {username, Username}],
     {ok, Event} = format_event(Payload),
     produce_kafka_payload(Event),	
     ok.
