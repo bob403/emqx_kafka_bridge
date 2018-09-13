@@ -20,9 +20,9 @@
 
 -include("emqx_kafka_bridge.hrl").
 
--include_lib("emqttd/include/emqx.hrl").
+-include_lib("emqx/include/emqx.hrl").
 
--include_lib("emqttd/include/emqx_mqtt.hrl").
+%%-include_lib("emqx/include/emqx_mqtt.hrl").
 
 
 -import(string,[concat/2]).
@@ -32,7 +32,7 @@
 
 %% Hooks functions
 
--export([on_client_connected/3, on_client_disconnected/3]).
+-export([on_client_connected/4, on_client_disconnected/3]).
 
 % -export([on_client_subscribe/4, on_client_unsubscribe/4]).
 
@@ -44,13 +44,13 @@
 %% Called when the plugin application start
 load(Env) ->
 	ekaf_init([Env]),
-    emqx:hook('client.connected', fun ?MODULE:on_client_connected/3, [Env]),
+    emqx:hook('client.connected', fun ?MODULE:on_client_connected/4, [Env]),
     emqx:hook('client.disconnected', fun ?MODULE:on_client_disconnected/3, [Env]),
     emqx:hook('message.publish', fun ?MODULE:on_message_publish/2, [Env]),
-    emqx:hook('message.delivered', fun ?MODULE:on_message_delivered/4, [Env]),
-    emqx:hook('message.acked', fun ?MODULE:on_message_acked/4, [Env]).
+    emqx:hook('message.delivered', fun ?MODULE:on_message_delivered/3, [Env]),
+    emqx:hook('message.acked', fun ?MODULE:on_message_acked/3, [Env]).
 
-on_client_connected(ConnAck, Client, _Env) ->
+on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, ConnAttrs, _Env) ->
     % io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
     % produce_kafka_payload(mochijson2:encode([
     %     {type, <<"event">>},
@@ -58,11 +58,11 @@ on_client_connected(ConnAck, Client, _Env) ->
     %     {deviceId, ClientId}
     % ])),
     % produce_kafka_payload(<<"event">>, Client),
-    {ok, Event} = format_event(connected, Client),
+    {ok, Event} = format_event(connected, ClientId, Username),
     produce_kafka_payload(Event),
-    {ok, Client}.
+    ok.
 
-on_client_disconnected(Reason, _Client, _Env) ->
+on_client_disconnected(#{client_id := ClientId, username := Username}, Reason, _Env) ->
     % io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
     % Message = mochijson2:encode([
     %     {type, },
@@ -70,7 +70,7 @@ on_client_disconnected(Reason, _Client, _Env) ->
     %     {deviceId, ClientId}
     % ]),
     % produce_kafka_payload(<<"event">>, _Client),
-    {ok, Event} = format_event(disconnected, _Client),
+    {ok, Event} = format_event(disconnected, ClientId, Username),
     produce_kafka_payload(Event),	
     ok.
 
@@ -84,11 +84,11 @@ on_message_publish(Message, _Env) ->
     produce_kafka_payload(Payload),	
     {ok, Message}.
 
-on_message_delivered(ClientId, Username, Message, _Env) ->
+on_message_delivered(#{client_id := ClientId}, Message, _Env) ->
     % io:format("delivered to client(~s/~s): ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
     {ok, Message}.
 
-on_message_acked(ClientId, Username, Message, _Env) ->
+on_message_acked(#{client_id := ClientId}, Message, _Env) ->
     % io:format("client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
     {ok, Message}.
 
@@ -108,10 +108,10 @@ ekaf_init(_Env) ->
     % {ok, _} = application:ensure_all_started(ranch),    
     {ok, _} = application:ensure_all_started(ekaf).
 
-format_event(Action, Client) ->
+format_event(Action, ClientId, Username) ->
     Event = [{action, Action},
-                {device_id, Client#mqtt_client.client_id},
-                {username, Client#mqtt_client.username}],
+                {device_id, ClientId},
+                {username, Username}],
     {ok, Event}.
 
 format_payload(Message) ->
@@ -121,7 +121,7 @@ format_payload(Message) ->
                   {username, Username},
                   {topic, Message#message.topic},
                   {payload, Message#message.payload},
-                  {ts, emqttd_time:now_secs(Message#message.timestamp)}],
+                  {ts, emqx_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
 format_from({ClientId, Username}) ->
@@ -135,15 +135,15 @@ a2b(A) -> erlang:atom_to_binary(A, utf8).
 
 %% Called when the plugin application stop
 unload() ->
-    emqx:unhook('client.connected', fun ?MODULE:on_client_connected/3),
+    emqx:unhook('client.connected', fun ?MODULE:on_client_connected/4),
     emqx:unhook('client.disconnected', fun ?MODULE:on_client_disconnected/3),
     % emqx:unhook('client.subscribe', fun ?MODULE:on_client_subscribe/4),
     % emqx:unhook('client.unsubscribe', fun ?MODULE:on_client_unsubscribe/4),
     % emqx:unhook('session.subscribed', fun ?MODULE:on_session_subscribed/4),
     % emqx:unhook('session.unsubscribed', fun ?MODULE:on_session_unsubscribed/4),
     emqx:unhook('message.publish', fun ?MODULE:on_message_publish/2),
-    emqx:unhook('message.delivered', fun ?MODULE:on_message_delivered/4),
-    emqx:unhook('message.acked', fun ?MODULE:on_message_acked/4).
+    emqx:unhook('message.delivered', fun ?MODULE:on_message_delivered/3),
+    emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
 produce_kafka_payload(Message) ->
     Topic = <<"Processing">>,
