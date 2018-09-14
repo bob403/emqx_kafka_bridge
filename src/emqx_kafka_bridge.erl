@@ -22,8 +22,6 @@
 
 -include_lib("emqx/include/emqx.hrl").
 
-%%-include_lib("emqx/include/emqx_mqtt.hrl").
-
 
 -import(string,[concat/2]).
 -import(lists,[nth/2]). 
@@ -52,12 +50,8 @@ load(Env) ->
 
 on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _ConnAttrs, _Env) ->
     % io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
-    % produce_kafka_payload(mochijson2:encode([
-    %     {type, <<"event">>},
-    %     {status, <<"connected">>},
-    %     {deviceId, ClientId}
-    % ])),
     % produce_kafka_payload(<<"event">>, Client),
+
     Action = <<"connected">>,
     Payload = [{action, Action},{device_id, ClientId}, {username, Username}],
     %{ok, Event} = format_event(Payload),
@@ -66,11 +60,6 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
 
 on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, _Env) ->
     % io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
-    % Message = mochijson2:encode([
-    %     {type, },
-    %     {status, <<"disconnected">>},
-    %     {deviceId, ClientId}
-    % ]),
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
@@ -84,7 +73,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
-    io:format("Publish message ~s~n", [emqx_message:format(Message)]),
+    % io:format("Publish message ~s~n", [emqx_message:format(Message)]),
     {ok, Payload} = format_payload(Message),
     produce_kafka_payload(Payload),	
     {ok, Message}.
@@ -113,13 +102,9 @@ ekaf_init(_Env) ->
     % {ok, _} = application:ensure_all_started(ranch),    
     {ok, _} = application:ensure_all_started(ekaf).
 
-%%format_event(Playload) ->
-%%    Event = Playload,
-%%    {ok, Event}.
 
 format_payload(Message) ->
     Username = emqx_message:get_header(username, Message),
-%%    {Username} = format_headers(Message#message.headers),
     Payload = [{action, message_publish},
                   {device_id, Message#message.from},
                   {username, Username},
@@ -128,14 +113,6 @@ format_payload(Message) ->
                   {ts, emqx_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
-%%format_headers({Username}) ->
-%%    {Username};
-%%format_headers(Username) when is_atom(Username) ->
-%%    {a2b(Username)};
-%%format_headers(_) ->
-%%    {<<>>}.
-
-a2b(A) -> erlang:atom_to_binary(A, utf8).
 
 %% Called when the plugin application stop
 unload() ->
