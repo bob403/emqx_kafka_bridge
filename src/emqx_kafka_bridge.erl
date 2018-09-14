@@ -118,7 +118,8 @@ ekaf_init(_Env) ->
 %%    {ok, Event}.
 
 format_payload(Message) ->
-    {Username} = format_headers(Message#message.headers),
+    Username = emqx_message:get_header(username, Message),
+%%    {Username} = format_headers(Message#message.headers),
     Payload = [{action, message_publish},
                   {device_id, Message#message.from},
                   {username, Username},
@@ -127,12 +128,12 @@ format_payload(Message) ->
                   {ts, emqx_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
-format_headers({Username}) ->
-    {Username};
-format_headers(Username) when is_atom(Username) ->
-    {a2b(Username)};
-format_headers(_) ->
-    {<<>>}.
+%%format_headers({Username}) ->
+%%    {Username};
+%%format_headers(Username) when is_atom(Username) ->
+%%    {a2b(Username)};
+%%format_headers(_) ->
+%%    {<<>>}.
 
 a2b(A) -> erlang:atom_to_binary(A, utf8).
 
