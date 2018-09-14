@@ -84,7 +84,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
-    % io:format("Publish message ~s~n", [emqx_message:format(Message)]),
+    io:format("Publish message ~s~n", [emqx_message:format(Message)]),
     {ok, Payload} = format_payload(Message),
     produce_kafka_payload(Payload),	
     {ok, Message}.
