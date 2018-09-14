@@ -50,7 +50,7 @@ load(Env) ->
     emqx:hook('message.delivered', fun ?MODULE:on_message_delivered/3, [Env]),
     emqx:hook('message.acked', fun ?MODULE:on_message_acked/3, [Env]).
 
-on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, ConnAttrs, _Env) ->
+on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _ConnAttrs, _Env) ->
     % io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
     % produce_kafka_payload(mochijson2:encode([
     %     {type, <<"event">>},
@@ -64,7 +64,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, Con
     produce_kafka_payload(Payload),
     ok.
 
-on_client_disconnected(#{client_id := ClientId, username := Username}, Reason, _Env) ->
+on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, _Env) ->
     % io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
     % Message = mochijson2:encode([
     %     {type, },
@@ -89,11 +89,11 @@ on_message_publish(Message, _Env) ->
     produce_kafka_payload(Payload),	
     {ok, Message}.
 
-on_message_delivered(#{client_id := ClientId}, Message, _Env) ->
+on_message_delivered(#{}, Message, _Env) ->
     % io:format("delivered to client(~s/~s): ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
     {ok, Message}.
 
-on_message_acked(#{client_id := ClientId}, Message, _Env) ->
+on_message_acked(#{}, Message, _Env) ->
     % io:format("client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
     {ok, Message}.
 
