@@ -11,5 +11,4 @@ rel/example_project
 .erlang.mk/
 emq_plugin_template.d
 /.idea
-*.iml
 /_build
