@@ -84,7 +84,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
-    % io:format("publish message : ~s~n", [emqttd_message:format(Message)]),
+    % io:format("Publish message ~s~n", [emqx_message:format(Message)]),
     {ok, Payload} = format_payload(Message),
     produce_kafka_payload(Payload),	
     {ok, Message}.
@@ -118,10 +118,10 @@ ekaf_init(_Env) ->
 %%    {ok, Event}.
 
 format_payload(Message) ->
-    {ClientId, Username} = format_from(Message#message.from),
+    {FromClientId, FromUsername} = format_from(Message#message.from),
     Payload = [{action, message_publish},
-                  {device_id, ClientId},
-                  {username, Username},
+                  {device_id, FromClientId},
+                  {username, FromUsername},
                   {topic, Message#message.topic},
                   {payload, Message#message.payload},
                   {ts, emqx_time:now_secs(Message#message.timestamp)}],
