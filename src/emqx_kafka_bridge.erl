@@ -58,7 +58,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, ConnAck, Con
     %     {deviceId, ClientId}
     % ])),
     % produce_kafka_payload(<<"event">>, Client),
-    Action = <<"connected">>,
+    Action = "connected",
     Payload = [{action, Action},{device_id, ClientId}, {username, Username}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
@@ -73,7 +73,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, Reason, _
     % ]),
     % produce_kafka_payload(<<"event">>, _Client),
 
-    Action = <<"disconnected">>,
+    Action = "disconnected",
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
@@ -113,9 +113,9 @@ ekaf_init(_Env) ->
     % {ok, _} = application:ensure_all_started(ranch),    
     {ok, _} = application:ensure_all_started(ekaf).
 
-format_event(Playload) ->
-    Event = Playload,
-    {ok, Event}.
+%%format_event(Playload) ->
+%%    Event = Playload,
+%%    {ok, Event}.
 
 format_payload(Message) ->
     {ClientId, Username} = format_from(Message#message.from),
@@ -150,7 +150,7 @@ unload() ->
 
 produce_kafka_payload(Message) ->
     Topic = <<"Processing">>,
-    Payload = iolist_to_binary(mochijson2:encode(Message)),
+    Payload = iolist_to_binary(emqx_json:safe_encode(Message)),
     ekaf:produce_async_batched(Topic, Payload).
     % ekaf:produce_async(Topic, Payload).
 	% io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
