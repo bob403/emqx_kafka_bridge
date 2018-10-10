@@ -105,11 +105,29 @@ ekaf_init(_Env) ->
 
 format_payload(Message) ->
     Username = emqx_message:get_header(username, Message),
+    
+    Topic = Message#message.topic,
+    Tail = string:right(binary_to_list(Topic),4),
+    RawType = string:equal(Tail,<<"_raw">>),
+    % io:format("Tail= ~s , RawType= ~s~n",[Tail,RawType]),
+    
+    MsgPayload  = Message#message.payload,
+    % io:format("MsgPayload : ~s~n", [MsgPayload]),
+    
+    if 
+        RawType == true ->
+    	    MsgPayload64 = list_to_binary(base64:encode_to_string(MsgPayload));
+            % io:format("MsgPayload64 : ~s~n", [MsgPayload64]);
+	RawType == false ->
+            MsgPayload64 = MsgPayload
+    end,
+    
+
     Payload = [{action, message_publish},
                   {device_id, Message#message.from},
                   {username, Username},
-                  {topic, Message#message.topic},
-                  {payload, Message#message.payload},
+                  {topic, Topic},
+                  {payload, MsgPayload64},
                   {ts, emqx_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
@@ -128,9 +146,14 @@ unload() ->
 
 produce_kafka_payload(Message) ->
     Topic = <<"Processing">>,
+    
     {ok,MessageBody} = emqx_json:safe_encode(Message),
+    
+    % MessageBody64 = base64:encode_to_string(MessageBody),
     Payload = iolist_to_binary(MessageBody),
+
     ekaf:produce_async_batched(Topic, Payload).
+
     % ekaf:produce_async(Topic, Payload).
 	% io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
 	% {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
