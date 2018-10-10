@@ -113,12 +113,12 @@ format_payload(Message) ->
     
     MsgPayload  = Message#message.payload,
     % io:format("MsgPayload : ~s~n", [MsgPayload]),
-    
-    if 
-		RawType == true ->
-    	    MsgPayload64 = list_to_binary(base64:encode_to_string(MsgPayload));
+
+    if
+        RawType == true ->
+            MsgPayload64 = list_to_binary(base64:encode_to_string(MsgPayload));
             % io:format("MsgPayload64 : ~s~n", [MsgPayload64]);
-		RawType == false ->
+        RawType == false ->
             MsgPayload64 = MsgPayload
     end,
     
