@@ -53,7 +53,8 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     % produce_kafka_payload(<<"event">>, Client),
 
     Action = <<"connected">>,
-    Payload = [{action, Action},{device_id, ClientId}, {username, Username}],
+    Now = erlang:now(),
+    Payload = [{action, Action},{device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
     ok.
@@ -63,7 +64,8 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
-    Payload = [{action, Action}, {device_id, ClientId}, {username, Username}],
+    Now = erlang:now(),
+    Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
     ok.
@@ -155,8 +157,8 @@ produce_kafka_payload(Message) ->
     ekaf:produce_async_batched(Topic, Payload).
 
     % ekaf:produce_async(Topic, Payload).
-	% io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
-	% {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
-	% Topic = proplists:get_value(payloadtopic, KafkaValue),
+	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
+	  % {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
+	  % Topic = proplists:get_value(payloadtopic, KafkaValue),
     % lager:debug("send to kafka payload topic: ~s, data: ~s~n", [Topic, Message]),
     
