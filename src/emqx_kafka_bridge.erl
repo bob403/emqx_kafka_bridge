@@ -56,7 +56,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     Now = erlang:timestamp(),
     Payload = [{action, Action},{device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
-    produce_kafka_payload(ClientId, Payload),
+    produce_kafka_payload(Payload),
     ok.
 
 on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, _Env) ->
@@ -67,7 +67,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     Now = erlang:timestamp(),
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
-    produce_kafka_payload(ClientId, Payload),
+    produce_kafka_payload(Payload),
     ok.
 
 %% transform message and return
@@ -148,10 +148,10 @@ unload() ->
     emqx:unhook('message.delivered', fun ?MODULE:on_message_delivered/3),
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
-produce_kafka_payload(Message) ->
-    produce_kafka_payload(<<"publish">>, Message).
+%% produce_kafka_payload(Message) ->
+%%     produce_kafka_payload(<<"publish">>, Message).
 
-produce_kafka_payload(_ClientId, Message) ->
+produce_kafka_payload(Message) ->
     Topic = <<"Processing">>,
     
     {ok,MessageBody} = emqx_json:safe_encode(Message),
