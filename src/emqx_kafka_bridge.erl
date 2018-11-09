@@ -149,7 +149,7 @@ unload() ->
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
 produce_kafka_payload(Message) ->
-    produce_kafka_payload(_, Message).
+    produce_kafka_payload(<<"publish">>, Message).
 
 produce_kafka_payload(ClientId, Message) ->
     Topic = <<"Processing">>,
