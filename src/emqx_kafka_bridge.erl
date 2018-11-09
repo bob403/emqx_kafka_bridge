@@ -96,9 +96,9 @@ ekaf_init(_Env) ->
     KafkaPartitionWorkers= proplists:get_value(partitionworkers, BrokerValues),
     application:set_env(ekaf, ekaf_bootstrap_broker,  {KafkaHost, list_to_integer(KafkaPort)}),
     application:set_env(ekaf, ekaf_partition_strategy, KafkaPartitionStrategy),
-    io:format("KafkaPartitionStrategy : ~p~n", [KafkaPartitionStrategy]),
+    % io:format("KafkaPartitionStrategy : ~p~n", [KafkaPartitionStrategy]),
     application:set_env(ekaf, ekaf_per_partition_workers, KafkaPartitionWorkers),
-    io:format("KafkaPartitionWorkers : ~p~n", [KafkaPartitionWorkers]),
+    % io:format("KafkaPartitionWorkers : ~p~n", [KafkaPartitionWorkers]),
     application:set_env(ekaf, ekaf_buffer_ttl, 10),
     application:set_env(ekaf, ekaf_max_downtime_buffer_size, 5),
     % {ok, _} = application:ensure_all_started(kafkamocker),
@@ -156,9 +156,11 @@ produce_kafka_payload(Message) ->
     % MessageBody64 = base64:encode_to_string(MessageBody),
     Payload = iolist_to_binary(MessageBody),
 
-    Response = ekaf:produce_async_batched(Topic, Payload),
+    % Response = ekaf:produce_async_batched(Topic, Payload),
+    % io:format("self: ~p ,Response: ~p~n", [self(), Response]).
 
-    io:format("self: ~p ,Response: ~p~n", [self(), Response]).
+    Key = term_to_binary(random:uniform()),
+    ekaf:produce_async_batched(Topic, {Key, Payload}).
     % ekaf:produce_async(Topic, Payload).
 	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
 	  % {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
