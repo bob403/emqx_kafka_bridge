@@ -156,7 +156,7 @@ produce_kafka_payload(Message) ->
 
     {buffered, Partition, BufferIndex} = ekaf:produce_async_batched(Topic, Payload),
 
-    io:format("self: ~p ,Partition: ~p, BufferIndex: ~p~n", [Partition, BufferIndex]).
+    io:format("self: ~p ,Partition: ~p, BufferIndex: ~p~n", [self(), Partition, BufferIndex]).
     % ekaf:produce_async(Topic, Payload).
 	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
 	  % {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
