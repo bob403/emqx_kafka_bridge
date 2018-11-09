@@ -53,7 +53,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     % produce_kafka_payload(<<"event">>, Client),
 
     Action = <<"connected">>,
-    Now = erlang:timestamp(),
+    Now = erlang:now(),
     Payload = [{action, Action},{device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
@@ -64,7 +64,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
-    Now = erlang:timestamp(),
+    Now = erlang:now(),
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
@@ -150,9 +150,6 @@ unload() ->
     emqx:unhook('message.delivered', fun ?MODULE:on_message_delivered/3),
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
-%% produce_kafka_payload(Message) ->
-%%     produce_kafka_payload(<<"publish">>, Message).
-
 produce_kafka_payload(Message) ->
     Topic = <<"Processing">>,
     
@@ -161,13 +158,8 @@ produce_kafka_payload(Message) ->
     % MessageBody64 = base64:encode_to_string(MessageBody),
     Payload = iolist_to_binary(MessageBody),
 
-    % Response = ekaf:produce_async_batched(Topic, Payload),
-    % io:format("self: ~p ,Response: ~p~n", [self(), Response]).
-
-    % Key = term_to_binary(random:uniform()),
-    % Key = ClientId,
-    % ekaf:produce_async_batched(Topic, {Key, Payload}).
     ekaf:produce_async_batched(Topic, Payload).
+
     % ekaf:produce_async(Topic, Payload).
 	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
 	  % {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
