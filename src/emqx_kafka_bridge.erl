@@ -56,7 +56,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     Now = erlang:timestamp(),
     Payload = [{action, Action},{device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
-    produce_kafka_payload(Payload),
+    produce_kafka_payload(ClientId, Payload),
     ok.
 
 on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, _Env) ->
@@ -67,7 +67,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     Now = erlang:timestamp(),
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
-    produce_kafka_payload(Payload),
+    produce_kafka_payload(ClientId, Payload),
     ok.
 
 %% transform message and return
@@ -77,7 +77,7 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
 on_message_publish(Message, _Env) ->
     % io:format("Publish message ~s~n", [emqx_message:format(Message)]),
     {ok, Payload} = format_payload(Message),
-    produce_kafka_payload(Payload),	
+    produce_kafka_payload(Payload),
     {ok, Message}.
 
 on_message_delivered(#{}, Message, _Env) ->
@@ -149,6 +149,9 @@ unload() ->
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
 produce_kafka_payload(Message) ->
+    produce_kafka_payload(_, Message).
+
+produce_kafka_payload(ClientId, Message) ->
     Topic = <<"Processing">>,
     
     {ok,MessageBody} = emqx_json:safe_encode(Message),
@@ -159,7 +162,8 @@ produce_kafka_payload(Message) ->
     % Response = ekaf:produce_async_batched(Topic, Payload),
     % io:format("self: ~p ,Response: ~p~n", [self(), Response]).
 
-    Key = term_to_binary(random:uniform()),
+    % Key = term_to_binary(random:uniform()),
+    Key = ClientId,
     ekaf:produce_async_batched(Topic, {Key, Payload}).
     % ekaf:produce_async(Topic, Payload).
 	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
