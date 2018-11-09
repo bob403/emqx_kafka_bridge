@@ -151,7 +151,7 @@ unload() ->
 produce_kafka_payload(Message) ->
     produce_kafka_payload(<<"publish">>, Message).
 
-produce_kafka_payload(ClientId, Message) ->
+produce_kafka_payload(_ClientId, Message) ->
     Topic = <<"Processing">>,
     
     {ok,MessageBody} = emqx_json:safe_encode(Message),
@@ -163,8 +163,9 @@ produce_kafka_payload(ClientId, Message) ->
     % io:format("self: ~p ,Response: ~p~n", [self(), Response]).
 
     % Key = term_to_binary(random:uniform()),
-    Key = ClientId,
-    ekaf:produce_async_batched(Topic, {Key, Payload}).
+    % Key = ClientId,
+    % ekaf:produce_async_batched(Topic, {Key, Payload}).
+    ekaf:produce_async_batched(Topic, Payload).
     % ekaf:produce_async(Topic, Payload).
 	  % io:format("send to kafka payload topic: ~s, data: ~s~n", [Topic, Payload]),
 	  % {ok, KafkaValue} = application:get_env(emq_kafka_bridge, broker),
