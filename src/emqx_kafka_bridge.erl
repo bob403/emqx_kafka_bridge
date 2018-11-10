@@ -137,6 +137,7 @@ format_payload(Message) ->
         {topic, Topic},
         {payload, MsgPayload64},
         {ts, emqx_time:now_secs(Message#message.timestamp)}],
+
     {ok, Payload}.
 
 
