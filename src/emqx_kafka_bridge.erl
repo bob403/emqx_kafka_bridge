@@ -53,7 +53,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     % produce_kafka_payload(<<"event">>, Client),
 
     Action = <<"connected">>,
-    Now = erlang:now(),
+    Now = erlang:timestamp(),
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
@@ -64,7 +64,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
-    Now = erlang:now(),
+    Now = erlang:timestamp(),
     Payload = [{action, Action}, {device_id, ClientId}, {username, Username}, {ts, emqx_time:now_secs(Now)}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
