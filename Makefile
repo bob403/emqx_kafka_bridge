@@ -1,5 +1,5 @@
 PROJECT = emqx_kafka_bridge
-PROJECT_DESCRIPTION = EMQ Kafka Bridge
+PROJECT_DESCRIPTION = EMQX Kafka Bridge
 PROJECT_VERSION = 3.0
 
 DEPS = ekaf
