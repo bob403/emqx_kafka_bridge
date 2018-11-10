@@ -107,7 +107,7 @@ ekaf_init(_Env) ->
     {ok, _} = application:ensure_all_started(ekaf).
 
 ekaf_get_topic() ->
-    Topic = application:get_env(ekaf, ekaf_bootstrap_topics),
+    {ok, Topic} = application:get_env(ekaf, ekaf_bootstrap_topics),
     Topic.
 
 
