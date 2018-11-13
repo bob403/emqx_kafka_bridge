@@ -14,6 +14,7 @@ COVER = true
 
 ERLC_OPTS += +debug_info
 ERLC_OPTS += +warnings_as_errors +warn_export_all +warn_unused_import
+TEST_ERLC_OPTS += +debug_info
 
 NO_AUTOPATCH = cuttlefish
 
