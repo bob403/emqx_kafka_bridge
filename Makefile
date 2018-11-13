@@ -1,5 +1,5 @@
 PROJECT = emqx_kafka_bridge
-PROJECT_DESCRIPTION = EMQX Kafka Bridge
+PROJECT_DESCRIPTION = EMQ X Kafka Bridge
 PROJECT_VERSION = 3.0
 
 DEPS = ekaf
@@ -13,8 +13,9 @@ dep_cuttlefish = git https://github.com/emqx/cuttlefish emqx30
 COVER = true
 
 ERLC_OPTS += +debug_info
-ERLC_OPTS += +'{parse_transform, lager_transform}'
-TEST_ERLC_OPTS += +'{parse_transform, lager_transform}'
+ERLC_OPTS += +warnings_as_errors +warn_export_all +warn_unused_import
+
+NO_AUTOPATCH = cuttlefish
 
 include erlang.mk
 
