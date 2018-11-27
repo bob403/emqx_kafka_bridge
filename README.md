@@ -16,15 +16,13 @@ This is a plugin for the EMQX broker that sends all messages received by the bro
 2. Add EMQ Kafka bridge as a DEPS
    Adding EMQ kafka bridge as a dependency in the Makefile.
 
-   1. search for `DEPS +=` and add to the end
-      > emqx_kafka_bridge
+   1. search for `DEPS += $(foreach dep,$(OUR_APPS),$(call app_name,$(dep)))` 
+      add the following line before the above lines
+      > DEPS += emqx_kafka_bridge
 
    2. search for
-     ```text
-     # Add this dependency before including erlang.mk
-     all:: OTP_21_OR_NEWER
-  
-     # COVER = true
+     ```
+     $(foreach dep,$(OUR_APPS),$(eval dep_$(call app_name,$(dep)) = git-emqx https://github.com/emqx/$(dep) $(call app_vsn,$(dep))))
      ```
      add the following line before the above lines
      >dep_emqx_kafka_bridge = git https://github.com/fanbaobo/emqx_kafka_bridge.git master
